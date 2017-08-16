@@ -2,12 +2,17 @@
   <v-app>
     <v-navigation-drawer v-model="sideNav" temporary>
       <v-list>
-        <v-list-tile>
+        <v-list-tile
+          v-for="item in menuItems"
+          :key="item.title"
+          router
+          :to="item.link"
+          >
           <v-list-tile-action>
-            <v-icon>supervisor_account</v-icon>
+            <v-icon>{{ item.icon }}</v-icon>
           </v-list-tile-action>
           <v-list-tile-content>
-            <v-list-tile-title v-text="'View Meetups'" />
+            <v-list-tile-title v-text="item.title" />
           </v-list-tile-content>
         </v-list-tile>
       </v-list>
@@ -17,17 +22,26 @@
       <v-toolbar-side-icon
         class="hidden-sm-and-up"
         @click.stop="sideNav = !sideNav"></v-toolbar-side-icon>
-      <v-toolbar-title>Meetup</v-toolbar-title>
+      <v-toolbar-title>
+        <router-link to="/" tag="span" style="cursor: pointer">Meetup</router-link>
+      </v-toolbar-title>
       <v-spacer></v-spacer>
       <v-toolbar-items class="hidden-xs-only">
-        <v-btn flat>
-          <v-icon left>supervisor_account</v-icon>
-          View Meetup
+        <v-btn
+          flat
+          v-for="item in menuItems"
+          :key="item.title"
+          router
+          :to="item.link"
+          >
+          <v-icon left>{{ item.icon }}</v-icon>
+          {{ item.title }}
         </v-btn>
       </v-toolbar-items>
     </v-toolbar>
-    <main>
 
+    <main>
+      <router-view></router-view>
     </main>
   </v-app>
 </template>
@@ -36,7 +50,14 @@
 export default {
   data () {
     return {
-      sideNav: false
+      sideNav: false,
+      menuItems: [
+        { icon: 'supervisor_account', title: 'View Meetups', link: '/meetups' },
+        { icon: 'room', title: 'Organize Meetup', link: '/meetups/new' },
+        { icon: 'person', title: 'Profile', link: '/profile' },
+        { icon: 'face', title: 'Sign up', link: '/signup' },
+        { icon: 'lock_open', title: 'Sign in', link: '/signin' }
+      ]
     }
   }
 }
