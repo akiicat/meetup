@@ -35,12 +35,9 @@
 
 <script>
   export default {
-    data () {
-      return {
-        meetups: [
-          { imageUrl: 'https://i.imgur.com/rO883eh.jpg', id: 'saf', title: 'Meetup in Taipei' },
-          { imageUrl: 'https://i.imgur.com/0IGt7hM.jpg', id: 'saf', title: 'Meetup in Kauhsiung' }
-        ]
+    computed: {
+      meetups () {
+        return this.$store.getters.featuredMeetups
       }
     },
     methods: {
