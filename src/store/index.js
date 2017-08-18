@@ -6,29 +6,15 @@ Vue.use(Vuex)
 
 export const store = new Vuex.Store({
   state: {
-    loadedMeetups: [
-      {
-        imageUrl: 'https://i.imgur.com/rO883eh.jpg',
-        id: 'meetup-in-taipei',
-        title: 'Meetup in Taipei',
-        date: new Date(),
-        location: 'Taipei',
-        description: 'taipei description'
-      },
-      {
-        imageUrl: 'https://i.imgur.com/0IGt7hM.jpg',
-        id: 'meetup-in-kauhsiung',
-        title: 'Meetup in Kauhsiung',
-        date: new Date(),
-        location: 'Kauhsiung',
-        description: 'Taipei description'
-      }
-    ],
+    loadedMeetups: [],
     user: null,
     loading: false,
     error: null
   },
   mutations: {
+    setLoadedMeetups (state, payload) {
+      state.loadedMeetups = payload
+    },
     createMeetup (state, payload) {
       state.loadedMeetups.push(payload)
     },
@@ -46,17 +32,50 @@ export const store = new Vuex.Store({
     }
   },
   actions: {
+    loadMeetups ({commit}) {
+      commit('setLoading', true)
+      firebase.database().ref('meetups').once('value')
+        .then(data => {
+          const meetups = []
+          const obj = data.val()
+          for (let key in obj) {
+            meetups.push({
+              id: key,
+              title: obj[key].title,
+              location: obj[key].location,
+              description: obj[key].description,
+              imageUrl: obj[key].imageUrl,
+              date: obj[key].date
+            })
+          }
+          commit('setLoadedMeetups', meetups)
+          commit('setLoading', false)
+        })
+        .catch(error => {
+          console.log(error)
+          commit('setLoading', true)
+        })
+    },
     createMeetup ({commit}, payload) {
       const meetup = {
         title: payload.title,
-        loadtion: payload.loadtion,
+        loadtion: payload.location,
         imageUrl: payload.imageUrl,
         description: payload.description,
-        date: payload.date,
-        id: 'firebase_meetup_id'
+        date: payload.date.toISOString()
       }
-      // Reach out to firebase and store it
-      commit('createMeetup', meetup)
+      firebase.database().ref('meetups').push(meetup)
+        .then((data) => {
+          console.log(data)
+          const key = data.key
+          commit('createMeetup', {
+            ...meetup,
+            id: key
+          })
+        })
+        .catch((error) => {
+          console.log(error)
+        })
     },
     signUserUp ({commit}, payload) {
       commit('setLoading', true)
